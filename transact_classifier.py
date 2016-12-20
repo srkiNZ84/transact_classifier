@@ -30,7 +30,7 @@ fileLines = transactionFile.readlines()
 # TODO: We might want to keep the metadata section for future reference
 headersSection = True
 categories = {}
-print('To finish classifying categories type \'end\'.)
+print('To finish classifying categories type \'end\'.')
 for line in fileLines:
     #print('--- ' + line)
 
@@ -41,7 +41,7 @@ for line in fileLines:
 
     if not headersSection:
         tokens = line.split(',')
-        print(str(tokens))
+        #print(str(tokens))
 
         print('Date: ' + tokens[0])
         print('Unique Id: ' + tokens[1])
@@ -63,7 +63,7 @@ for line in fileLines:
         else:
             categories[category] += float(tokens[6])
 
-    print("Categories: " + str(categories))
+        print("Categories: " + str(categories))
 
 print('All done!')
 print('Totals are:')
