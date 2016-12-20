@@ -1,6 +1,6 @@
 #!/Library/Frameworks/Python.framework/Versions/3.5/bin/python3
 
-import sys, os
+import sys, os, pprint
 
 print("Welcome to the Transaction Classifier!")
 
@@ -29,6 +29,8 @@ fileLines = transactionFile.readlines()
 # TODO: Need to skip the top metadata section and headers
 # TODO: We might want to keep the metadata section for future reference
 headersSection = True
+categories = {}
+print('To finish classifying categories type \'end\'.)
 for line in fileLines:
     #print('--- ' + line)
 
@@ -52,7 +54,20 @@ for line in fileLines:
         # TODO: Prompt user to classify transaction
         print('What type of transaction is this?')
         category = input()
-        print('User said it was ' + category + ' category')
+        if category == 'end':
+            break
+
+        # TODO: Store the category (if new) and increment total
+        if category not in categories.keys():
+            categories[category] = float(tokens[6])
+        else:
+            categories[category] += float(tokens[6])
+
+    print("Categories: " + str(categories))
+
+print('All done!')
+print('Totals are:')
+pprint.pprint(categories)
 
 transactionFile.close()
 
