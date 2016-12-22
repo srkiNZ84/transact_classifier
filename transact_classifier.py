@@ -1,6 +1,6 @@
 #!/Library/Frameworks/Python.framework/Versions/3.5/bin/python3
 
-import sys, os, pprint
+import sys, os, pprint, shelve
 
 print("Welcome to the Transaction Classifier!")
 
@@ -30,7 +30,12 @@ fileLines = transactionFile.readlines()
 # TODO: We might want to keep the metadata section for future reference
 headersSection = True
 categories = {}
+classifications = {}
 print('To finish classifying categories type \'end\'.')
+
+# TODO: Load database file with existing list of transactions and
+# classifications
+
 for line in fileLines:
     #print('--- ' + line)
 
@@ -43,6 +48,8 @@ for line in fileLines:
         tokens = line.split(',')
         #print(str(tokens))
 
+        # TODO: Skip if transaction is already in DB
+
         print('Date: ' + tokens[0])
         print('Unique Id: ' + tokens[1])
         print('Tran Type: ' + tokens[2])
@@ -52,12 +59,16 @@ for line in fileLines:
         print('Amount: ' + tokens[6])
 
         # TODO: Prompt user to classify transaction
-        print('What type of transaction is this?')
+        print('#-----------#\nWhat type of transaction is this?')
         category = input()
         if category == 'end':
             break
 
-        # TODO: Store the category (if new) and increment total
+        # Save the Unique ID and category
+        classifications[tokens[1]] = category
+
+
+        # Store the category (if new) and increment total
         if category not in categories.keys():
             categories[category] = float(tokens[6])
         else:
@@ -65,9 +76,18 @@ for line in fileLines:
 
         print("Categories: " + str(categories))
 
+# Save the data to an actual file
+print('Saving to file...')
+transactionFile = shelve.open('transactionData')
+transactionFile['categories'] = categories
+transactionFile['classifications'] = classifications
+transactionFile.close()
+
 print('All done!')
+print('categorized transactions:')
+pprint.pprint(classifications)
+
 print('Totals are:')
 pprint.pprint(categories)
 
-transactionFile.close()
 
