@@ -39,9 +39,14 @@ print('To finish classifying categories type \'end\'.')
 # classifications
 try:
     transactionFile = shelve.open(databaseName)
-    print('database contents are: ' + str(transactionFile['categories']) + '\n' + str(transactionFile['classifications']))
-    categories = transactionFile['categories']
-    classifications = transactionFile['classifications']
+    if 'categories' in transactionFile:
+        print('database categories are: ' + str(transactionFile['categories']))
+        categories = transactionFile['categories']
+
+    if 'classifications' in transactionFile:
+        print('database classifications are: ' + str(transactionFile['classifications']))
+        classifications = transactionFile['classifications']
+
 except:
     print('Error opening database file: ', sys.exc_info())
 
@@ -71,11 +76,13 @@ for line in fileLines:
             print('Skipping transaction as it is already been classified as ' + classifications[tokens[1]])
             continue
 
-        # TODO: Prompt user to classify transaction
+        # Prompt user to classify transaction
         print('#-----------#\nWhat type of transaction is this?')
         category = input()
         if category == 'end':
             break
+
+        # TODO: Check that the user hasn't entered a blank line
 
         # Save the Unique ID and category
         classifications[tokens[1]] = category
@@ -100,3 +107,5 @@ pprint.pprint(classifications)
 
 print('Totals are:')
 pprint.pprint(categories)
+for category in categories:
+    print('' + category + ', ' + str(categories[category]))
