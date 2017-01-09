@@ -4,6 +4,8 @@ import sys, os, pprint, shelve
 
 print("Welcome to the Transaction Classifier!")
 
+databaseName = 'transactionData'
+
 if len(sys.argv) < 2:
     print('Error: Need to specify file to load')
     print('Usage: transaction_classifier.py [CSV file to load]')
@@ -33,8 +35,16 @@ categories = {}
 classifications = {}
 print('To finish classifying categories type \'end\'.')
 
-# TODO: Load database file with existing list of transactions and
+# Load database file with existing list of transactions and
 # classifications
+try:
+    transactionFile = shelve.open(databaseName)
+    print('database contents are: ' + str(transactionFile['categories']) + '\n' + str(transactionFile['classifications']))
+    categories = transactionFile['categories']
+    classifications = transactionFile['classifications']
+except:
+    print('Error opening database file: ', sys.exc_info())
+
 
 for line in fileLines:
     #print('--- ' + line)
@@ -48,8 +58,6 @@ for line in fileLines:
         tokens = line.split(',')
         #print(str(tokens))
 
-        # TODO: Skip if transaction is already in DB
-
         print('Date: ' + tokens[0])
         print('Unique Id: ' + tokens[1])
         print('Tran Type: ' + tokens[2])
@@ -57,6 +65,11 @@ for line in fileLines:
         print('Payee: ' + tokens[4])
         print('Memo: ' + tokens[5])
         print('Amount: ' + tokens[6])
+
+        # TODO: Skip if transaction is already in DB
+        if tokens[1] in classifications:
+            print('Skipping transaction as it is already been classified as ' + classifications[tokens[1]])
+            continue
 
         # TODO: Prompt user to classify transaction
         print('#-----------#\nWhat type of transaction is this?')
@@ -66,7 +79,6 @@ for line in fileLines:
 
         # Save the Unique ID and category
         classifications[tokens[1]] = category
-
 
         # Store the category (if new) and increment total
         if category not in categories.keys():
@@ -78,7 +90,6 @@ for line in fileLines:
 
 # Save the data to an actual file
 print('Saving to file...')
-transactionFile = shelve.open('transactionData')
 transactionFile['categories'] = categories
 transactionFile['classifications'] = classifications
 transactionFile.close()
@@ -89,5 +100,3 @@ pprint.pprint(classifications)
 
 print('Totals are:')
 pprint.pprint(categories)
-
-
