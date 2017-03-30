@@ -63,6 +63,7 @@ for line in fileLines:
         tokens = line.split(',')
         #print(str(tokens))
 
+        # TODO: Really should make this a dictionary or a proper object type
         print('Date: ' + tokens[0])
         print('Unique Id: ' + tokens[1])
         print('Tran Type: ' + tokens[2])
