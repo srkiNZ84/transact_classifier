@@ -1,10 +1,14 @@
 #!/Library/Frameworks/Python.framework/Versions/3.5/bin/python3
 
-import sys, os, pprint, shelve
+import sys, os, pprint, shelve, csv
+from datetime import datetime
+from elasticsearch_dsl import DocType, Date, Integer, Keyword, Text
+from elasticsearch_dsl.connections import connections
 
 print("Welcome to the Transaction Classifier!")
 
 databaseName = 'transactionData'
+esHostname = '192.168.99.100:9200'
 
 if len(sys.argv) < 2:
     print('Error: Need to specify file to load')
@@ -17,13 +21,14 @@ fileToLoad = sys.argv[1]
 #print('CSV file to load: ' + fileToLoad)
 try:
     transactionFile = open(fileToLoad)
+    transactionReader = csv.reader(transactionFile)
 except FileNotFoundError:
     print('Error loading file: File not found \'' + fileToLoad + '\'')
 except:
     print('Error loading file: ', sys.exc_info())
 
 # Read in file contents
-fileLines = transactionFile.readlines()
+fileLines = list(transactionReader)
 
 # TODO: We might want to add a "format guesser" if we wanted to support other
 # formats/banks in the future
@@ -38,6 +43,7 @@ print('To finish classifying categories type \'end\'.')
 # Load database file with existing list of transactions and
 # classifications
 try:
+    connections.create_connection(hosts=[esHostname])
     transactionFile = shelve.open(databaseName)
     if 'categories' in transactionFile:
         print('database categories are: ' + str(transactionFile['categories']))
@@ -54,27 +60,24 @@ except:
 for line in fileLines:
     #print('--- ' + line)
 
-    if line == '\n' and headersSection:
+    if line == [] and headersSection:
         print('end of headers')
         headersSection = False
         continue
 
     if not headersSection:
-        tokens = line.split(',')
-        #print(str(tokens))
-
         # TODO: Really should make this a dictionary or a proper object type
-        print('Date: ' + tokens[0])
-        print('Unique Id: ' + tokens[1])
-        print('Tran Type: ' + tokens[2])
-        print('Cheque Number: ' + tokens[3])
-        print('Payee: ' + tokens[4])
-        print('Memo: ' + tokens[5])
-        print('Amount: ' + tokens[6])
+        print('Date: ' + line[0])
+        print('Unique Id: ' + line[1])
+        print('Tran Type: ' + line[2])
+        print('Cheque Number: ' + line[3])
+        print('Payee: ' + line[4])
+        print('Memo: ' + line[5])
+        print('Amount: ' + line[6])
 
         # TODO: Skip if transaction is already in DB
-        if tokens[1] in classifications:
-            print('Skipping transaction as it is already been classified as ' + classifications[tokens[1]])
+        if line[1] in classifications:
+            print('Skipping transaction as it is already been classified as ' + classifications[line[1]])
             continue
 
         # Prompt user to classify transaction
@@ -86,13 +89,13 @@ for line in fileLines:
         # TODO: Check that the user hasn't entered a blank line
 
         # Save the Unique ID and category
-        classifications[tokens[1]] = category
+        classifications[line[1]] = category
 
         # Store the category (if new) and increment total
         if category not in categories.keys():
-            categories[category] = float(tokens[6])
+            categories[category] = float(line[6])
         else:
-            categories[category] += float(tokens[6])
+            categories[category] += float(line[6])
 
         print("Categories: " + str(categories))
 
