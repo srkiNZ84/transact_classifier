@@ -3,6 +3,7 @@
 from selenium import webdriver
 import getpass
 import time
+import datetime
 import os
 
 print("Getting transaction data from your ASB account")
@@ -31,8 +32,22 @@ print("Current URL: " + browser.current_url)
 token = browser.current_url.split('/')[5]
 print("Token: " + token)
 
-browser.get("https://online.asb.co.nz/fnc/" + token + \
-        "/Statements/export.ashx?paging=250&FROMDAY=2&FROMMMYY=Mar 2017&TODAY=22&TOMMYY=Mar 2017&FORMAT=CSV - Generic&AccountNumber=12-3026-0045171-00&AccountType=0")
+todaysDate = datetime.datetime.now()
+# TODO: Loop through and just get all the transactions ever
+monthYear = todaysDate.strftime('%b %Y')
+print("type: {0}, value: {1}".format(type(monthYear), monthYear))
+csvURL = "https://online.asb.co.nz/fnc/{0}/Statements/export.ashx?paging=250&\
+FROMDAY=2&\
+FROMMMYY=Mar 2017&\
+TODAY={1}&\
+TOMMYY={2}&\
+FORMAT=CSV - Generic&\
+AccountNumber=12-0000-0000000-00&\
+AccountType=0".format(token,todaysDate.day,todaysDate.strftime('%b %Y'))
+
+print("CSV download URL: " + csvURL)
+
+browser.get(csvURL)
 
 time.sleep(5)
 browser.quit()
