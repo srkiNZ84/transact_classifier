@@ -4,7 +4,10 @@ from selenium import webdriver
 import getpass
 import time
 import datetime
+import logging
 import os
+
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
 print("Getting transaction data from your ASB account")
 
@@ -45,7 +48,7 @@ FORMAT=CSV - Generic&\
 AccountNumber=12-0000-0000000-00&\
 AccountType=0".format(token,todaysDate.day,todaysDate.strftime('%b %Y'))
 
-print("CSV download URL: " + csvURL)
+logging.debug("CSV download URL: " + csvURL)
 
 browser.get(csvURL)
 
