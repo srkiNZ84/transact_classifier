@@ -1,10 +1,14 @@
 #!/Library/Frameworks/Python.framework/Versions/3.5/bin/python3
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import getpass
+import urllib
 import time
 import datetime
 import logging
+import glob
+import shutil
 import os
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
@@ -17,8 +21,9 @@ asbUsername = input()
 asbPassword = getpass.getpass("Enter your ASB online password: ")
 
 print("Launching browser...")
-options = webdriver.ChromeOptions()
+options = Options()
 options.add_argument("download.default_directory=" + os.getcwd())
+#options.add_argument("--headless")
 
 browser = webdriver.Chrome(chrome_options=options)
 
@@ -41,16 +46,24 @@ monthYear = todaysDate.strftime('%b %Y')
 print("type: {0}, value: {1}".format(type(monthYear), monthYear))
 csvURL = "https://online.asb.co.nz/fnc/{0}/Statements/export.ashx?paging=250&\
 FROMDAY=2&\
-FROMMMYY=Mar 2017&\
+FROMMMYY=Jan 2018&\
 TODAY={1}&\
 TOMMYY={2}&\
 FORMAT=CSV - Generic&\
-AccountNumber=12-0000-0000000-00&\
+AccountNumber=12-3026-0045171-00&\
 AccountType=0".format(token,todaysDate.day,todaysDate.strftime('%b %Y'))
+
+# URL encode the string
+csvURL = urllib.parse.quote(csvURL, safe='/?&=:')
 
 logging.debug("CSV download URL: " + csvURL)
 
 browser.get(csvURL)
 
 time.sleep(5)
+
+for exportFile in glob.glob("/Users/srdan/Downloads/Export*.csv"):
+    logging.debug("Copying file: " + exportFile + " to current directory")
+    shutil.(exportFile, os.getcwd())
+
 browser.quit()
